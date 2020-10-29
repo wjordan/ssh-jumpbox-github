@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Source exported GITHUB_* variables.
+. /etc/github_keys
+
+# Query GitHub GraphQL API for public keys of all members in the specified team.
+GRAPHQL=/etc/github.graphql
+
+QUERY=$(cat <<JSON
+{ 
+  "query": "$(tr '[:space:]' ' ' < $GRAPHQL)",
+  "variables": {
+    "org": "${GITHUB_ORG}",
+    "team": "${GITHUB_TEAM}"
+  }
+}
+JSON
+)
+
+# Cache response in a temporary file for up to one minute.
+CACHE=/tmp/github_keys
+if [ ! -s $CACHE ] || [ ! "$(find $CACHE -mmin -1 2>&-)" ]; then
+  curl -sS https://api.github.com/graphql \
+    -H "Authorization: bearer ${GITHUB_TOKEN}" \
+    -X POST -d "$QUERY" | \
+    jq '.data.organization.team.members.nodes[].publicKeys.nodes[].key' -r \
+    > $CACHE
+fi
+cat $CACHE
