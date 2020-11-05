@@ -1,5 +1,6 @@
 FROM alpine
 RUN apk add --no-cache openssh curl jq
-COPY rootfs /
+COPY sshd_config /etc/ssh/
+COPY root/* /root/
 EXPOSE 22
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/root/entrypoint.sh"]

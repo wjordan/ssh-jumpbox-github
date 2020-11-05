@@ -4,7 +4,7 @@
 . /etc/github_keys
 
 # Query GitHub GraphQL API for public keys of all members in the specified team.
-GRAPHQL=/etc/github.graphql
+GRAPHQL=/root/github.graphql
 
 QUERY=$(cat <<JSON
 { 
